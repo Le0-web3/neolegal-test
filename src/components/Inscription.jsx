@@ -175,7 +175,30 @@ const Inscription = () => {
   //   -----   OUTPUTS   -----
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+    // Vérification du format du prénom avant POST
+    const firstNameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:[- ][A-Za-zÀ-ÖØ-öø-ÿ]+)*$/;
+    const isValidFirstName = firstNameRegex.test(formData.first_name) && formData.first_name.length <= 128;
+    if (!isValidFirstName) {
+      console.error('Le prénom est invalide. Veuillez entrer un prénom valide.');
+      return;
+} 
+
+    // Vérification du format du nom avant POST
+    const lastNameRegex = /^[A-ZÀ-Ö]+(?:[- ][A-ZÀ-Ö]+)*$/;
+    const isValidLastName = lastNameRegex.test(formData.last_name) && formData.last_name.length <= 128;
+    if (!isValidLastName) {
+      console.error('Le nom est invalide. Veuillez entrer un nom valide.');
+      return;
+    }
+
+    // Vérification du format de l'email avant POST
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
+    const isValidEmail = emailRegex.test(formData.email) && formData.email.length <= 128;
+    if (!isValidEmail) {
+      console.error("L'email est invalide. Veuillez entrer un email valide.");
+      return;
+    }
+
     // Vérification du format du numéro de téléphone avant POST
     const phoneNumberRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
     const isValidPhoneNumber = phoneNumberRegex.test(formData.phone_number);
@@ -183,6 +206,32 @@ const Inscription = () => {
       console.error('Le numéro de téléphone est invalide. Veuillez entrer un numéro au format (xxx) xxx-xxxx.');
       return;
     }
+
+    // Vérification du format de l'adresse avant POST
+    const addresslRegex = /^[a-z0-9À-ö]+(?:[-' ][a-z0-9À-ö]+)*$/i;
+    const isValidAddress = addresslRegex.test(formData.street_address) && formData.street_address.length <= 128;
+    if (!isValidAddress) {
+      console.error("L'adresse est invalide. Veuillez entrer une adresse valide.");
+      return;
+    }
+
+    // Vérification du format du code postal avant POST
+    const postcodeRegex = /^[A-Z0-9 ]{1,8}$/;
+    const isValidPostcode = postcodeRegex.test(formData.post_code)
+    if (!isValidPostcode) {
+      console.error("Le code postal est invalide. Veuillez entrer un code postal valide.");
+      return;
+    }
+
+    // Vérification du format du pays avant POST
+    const countryRegex = /^[A-ZÀ-Ö]+(?:[- ][A-ZÀ-Ö]+)*$/;
+    const isValidCountry = countryRegex.test(formData.country)
+    if (!isValidCountry) {
+      console.error("Le pays est invalide. Veuillez entrer un pays valide.");
+      return;
+    }
+
+
 
       // Envoie un POST en JSON
     const response = await fetch('https://enovode7uq1r.x.pipedream.net/', {
