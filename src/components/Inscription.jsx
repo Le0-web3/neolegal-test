@@ -112,8 +112,6 @@ const Inscription = () => {
     });
   };
 
-
-
   //   -----   INPUTS   -----
   // Mes inputs sont controlés par le state formData. J'impose un format à la saisie et je stocke dans formData
 
@@ -152,13 +150,10 @@ const Inscription = () => {
       // on passe tout en majuscule
       formattedInput = value.toUpperCase();
     }
-
-
-    
+    // pour eviter les erreur, et gérer street_adress
     else {
       formattedInput = value;
     }
-
     return formattedInput;
   }
 
@@ -171,7 +166,6 @@ const Inscription = () => {
         [name]: newValue
       });
     }
-
 
 
   //   -----   OUTPUTS   -----
@@ -240,8 +234,6 @@ const Inscription = () => {
       return;
     }
 
-
-
       // Envoie un POST en JSON
     const response = await fetch('https://enovode7uq1r.x.pipedream.net/', {
       method: 'POST',
@@ -260,21 +252,24 @@ const Inscription = () => {
     }
   };
     
+//   -----   RENDERING   -----
 
   return (
-    <div className="my-bg-inscription">
-      <div className="form">
+    <div>
+      <div className="container">
         {formJson && formJson.questions ? (
           <Form onSubmit={handleSubmit}>
             {formJson.questions.map((question, index) => (
-              <div key={index} className="row">
-                <div className="col-sm-12">
-                  <h3 className="question-font">{question.title}</h3>
+              <div key={index} className="row justify-content-center mb-3">
+                <div className="col-lg-8">
+                  <div>
+                    <h3>{question.title}</h3>
+                  </div>
                 </div>
                 {question.fields.map((field, index) => (
-                  <div key={index} className="col-sm-6">
-                    <FormGroup className="mb-3">
-                      <FormLabel className="field-title-font" htmlFor={field.name}>{field.label}</FormLabel>
+                  <div key={index} className="col-lg-8">
+                    <FormGroup>
+                      <FormLabel className="mb-0" htmlFor={field.name}>{field.label}</FormLabel>
                       {field.type === 'text' ? (
                         masks[field.name] ? (
                           <FormControl
@@ -285,7 +280,7 @@ const Inscription = () => {
                             name={field.name}
                             value={formData[field.name]}
                             onChange={(event) => handleInputChange(event)}
-                            className="form-control"
+                            
                           />
                         ) : (
                           <FormControl
@@ -294,41 +289,38 @@ const Inscription = () => {
                             name={field.name}
                             value={formData[field.name]}
                             onChange={(event) => handleInputChange(event)}
-                            className="form-control"
                           />
                         )
                       ) : field.type === 'dropdown' ? (
-                        <FormControl
-                          as="select"
-                          id={field.name}
-                          name={field.name}
-                          onChange={(event) => handleInputChange(event)}
-                          className="form-select"
-                        >
-                          {field.options.map((option, index) => (
-                            <option key={index} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </FormControl>
+                          <FormControl
+                            as="select"
+                            id={field.name}
+                            name={field.name}
+                            onChange={(event) => handleInputChange(event)}
+                            className="form-select"
+                          >
+                            {field.options.map((option, index) => (
+                              <option key={index} value={option.value} className="custom-option">
+                                {option.label}
+                              </option>
+                            ))}
+                          </FormControl>
                       ) : null}
                     </FormGroup>
                   </div>
                 ))}
               </div>
             ))}
-            <Button type="submit" className="btn btn-primary">Enregistrer</Button>
+            <div className="row">
+              <div className="col-lg-12">
+                <Button type="submit" className="btn custom-btn mt-3">Enregistrer</Button>
+              </div>
+            </div>
           </Form>
         ) : null}
       </div>
     </div>
   );
-  
-  
-    
-    
-  
-
   
 };
 

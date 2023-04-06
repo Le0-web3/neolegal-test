@@ -1,6 +1,176 @@
+CSS
+
+@import "../../node_modules/bootstrap/scss/bootstrap.scss";
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+
+
+/* Modifier les couleurs principales */
+$primary: #1BA098;
+$secondary: #051622;
+$tertiary: #DEB992;
+$black: #000000;
+
+#root {
+  margin: 0;
+  padding: 0;
+  font-family: 'Lato', sans-serif;
+}
+
+.question-font {
+  color: darken($tertiary, 30%);
+  margin-top: 4%;
+  margin-bottom: 2%;
+  font-size: 3em;
+}
+
+.form-label {
+  color: $tertiary;
+}
+
+.form-group label {
+  font-weight: bold;
+}
+
+.form-control {
+  border-color: $secondary;
+}
+
+.btn-primary {
+  background-color: $primary;
+  border-color: $primary;
+  color: $secondary;
+  margin-top: 5em;
+}
+
+.btn-primary:hover {
+  background-color: darken($primary, 10%);
+  border-color: darken($primary, 10%);
+}
+
+.my-bg-inscription {
+  --bs-bg-opacity: 1;
+  background-image: linear-gradient(to bottom right, $black, $secondary);
+  padding: 5%;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* Masquer la barre de défilement */
+}
+
+.my-bg-merci {
+  --bs-bg-opacity: 1;
+  background-image: linear-gradient(to bottom right, lighten($primary, 60%), lighten($tertiary, 20%));
+  padding: 5%;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* Masquer la barre de défilement */
+}
+
+.form {
+  padding-top: 2vh;
+  padding-left: 10%;
+  padding-right: 10%;
+}
+
+.my-message {
+  color: darken($secondary, 30%);
+}
+
+.my-variable {
+  color: lighten($secondary, 10%);
+}
+
+/* Media query pour les mobiles */
+@media (max-width: 767px) {
+
+  .my-bg-inscription {
+    height: 100%;
+    width: 100%;
+    padding: 3%;
+  }
+
+  .my-bg-merci {
+    height: 100%;
+    width: 100%;
+    padding: 3%;
+  }
+
+
+  .form {
+    padding-top: 0;
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
+  .form-label {
+    margin-bottom: 1%;
+  }
+
+  .btn-primary {
+    margin-top: 0;
+  }
+
+  .question-font {
+    margin-top: 2%;
+    font-size: 1.5em;
+  }
+
+  .my-message{
+    font-size: 1.5em;
+  }
+}
+
+
+
+MERCI
+
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import './styles.scss';
+
+const Merci = () => {
+  const { name } = useParams();
+  const [inputValue, setInputValue] = useState("");
+
+  const handleInputChange = (value) => {
+    // on enleve les chiffres et ne garder que les lettres (dont celles avec accents), les traits d'union et les espaces
+    const cleanedStr = value.replace(/[^A-Za-zÀ-ÿ -]/g, '');
+    // on ne laisse pas plus de 1 espace ou trait d'union d'affilée
+    const singleSpacesAndHyphensStr = cleanedStr.replace(/( |-)( |-)/g, '$1');
+    // on passe tout en minuscule
+    const lowercaseFormattedStr = singleSpacesAndHyphensStr.toLowerCase();
+    // on passe la première lettre (et chaque première lettre après un trait d'union ou un espace) en majuscule
+    let newValue = lowercaseFormattedStr.replace(/\b\w/g, (match) => match.toUpperCase());
+    setInputValue(newValue);
+    }
+
+    return (
+      <div className="my-bg-merci vh-100 vw-100 d-flex align-items-center justify-content-center">
+    
+          <div className="col-md-8 text-center">
+          <h1 className="my-message my-4">Merci<br /><span className="my-variable">{inputValue || name}</span><br />pour votre inscription</h1>
+            <input
+              type="text"
+              className="form-control mt-3"
+              value={inputValue}
+              onChange={(e) => handleInputChange(e.target.value)}
+            />
+          </div>
+
+      </div>
+    );
+
+};
+
+export default Merci;
+
+
+INSCRIPTION
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import InputMask from 'react-text-mask';
+import { Form, FormGroup, FormLabel, FormControl, Button } from 'react-bootstrap';
+import './styles.scss';
 
 const Inscription = () => {
   const navigate = useNavigate();   // Router
@@ -258,66 +428,70 @@ const Inscription = () => {
     }
   };
     
-    
-    
+
   return (
-
-    <div>
-      {formJson && formJson.questions ? (
-        <form onSubmit={handleSubmit}>
-          {formJson.questions.map((question, index) => (
-            <div key={index}>
-              <h3>{question.title}</h3>
-              {question.fields.map((field, index) => (
-                <div key={index}>
-                  <label htmlFor={field.name}>{field.label}</label>
-                  {field.type === 'text' ? (
-                    masks[field.name] ? (
-                      <InputMask
-                        type="text"
-                        mask={masks[field.name]}
-                        id={field.name}
-                        name={field.name}
-                        value={formData[field.name]}
-                        onChange={(event) => handleInputChange(event)}
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        id={field.name}
-                        name={field.name}
-                        value={formData[field.name]}
-                        onChange={(event) => handleInputChange(event)}
-                      />
-                    )
-                  ) : field.type === 'dropdown' ? (
-                    <select
-                      type="dropdown"
-                      id={field.name}
-                      name={field.name}
-                      onChange={(event) => handleInputChange(event)}
-                    >
-                      {field.options.map((option, index) => (
-                        <option key={index} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : null}
+    <div className="my-bg-inscription">
+      <div className="form">
+        {formJson && formJson.questions ? (
+          <Form onSubmit={handleSubmit}>
+            {formJson.questions.map((question, index) => (
+              <div key={index} className="row">
+                <div className="col-sm-12">
+                  <h3 className="question-font">{question.title}</h3>
                 </div>
-              ))}
-            </div>
-          ))}
-          <button type="submit">Enregistrer</button>
-        </form>
-      ) : null}
-
-      <div>
-        <h2>Données du formulaire :</h2>
-        <pre>{JSON.stringify(formData, null, 2)}</pre>
+                {question.fields.map((field, index) => (
+                  <div key={index} className="col-sm-6">
+                    <FormGroup className="mb-3">
+                      <FormLabel htmlFor={field.name}>{field.label}</FormLabel>
+                      {field.type === 'text' ? (
+                        masks[field.name] ? (
+                          <FormControl
+                            type="text"
+                            as={InputMask}
+                            mask={masks[field.name]}
+                            id={field.name}
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={(event) => handleInputChange(event)}
+                            className="form-control"
+                          />
+                        ) : (
+                          <FormControl
+                            type="text"
+                            id={field.name}
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={(event) => handleInputChange(event)}
+                            className="form-control"
+                          />
+                        )
+                      ) : field.type === 'dropdown' ? (
+                        <FormControl
+                          as="select"
+                          id={field.name}
+                          name={field.name}
+                          onChange={(event) => handleInputChange(event)}
+                          className="form-select"
+                        >
+                          {field.options.map((option, index) => (
+                            <option key={index} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </FormControl>
+                      ) : null}
+                    </FormGroup>
+                  </div>
+                ))}
+              </div>
+            ))}
+            <Button type="submit" className="btn btn-primary">Enregistrer</Button>
+          </Form>
+        ) : null}
       </div>
     </div>
   );
+  
   
     
     
@@ -328,40 +502,3 @@ const Inscription = () => {
 
 export default Inscription;
 
-
-
-
-
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import './styles.scss';
-
-const Merci = () => {
-  const { name } = useParams();
-  const [inputValue, setInputValue] = useState("");
-
-  const handleInputChange = (value) => {
-    // on enleve les chiffres et ne garder que les lettres (dont celles avec accents), les traits d'union et les espaces
-    const cleanedStr = value.replace(/[^A-Za-zÀ-ÿ -]/g, '');
-    // on ne laisse pas plus de 1 espace ou trait d'union d'affilée
-    const singleSpacesAndHyphensStr = cleanedStr.replace(/( |-)( |-)/g, '$1');
-    // on passe tout en minuscule
-    const lowercaseFormattedStr = singleSpacesAndHyphensStr.toLowerCase();
-    // on passe la première lettre (et chaque première lettre après un trait d'union ou un espace) en majuscule
-    let newValue = lowercaseFormattedStr.replace(/\b\w/g, (match) => match.toUpperCase());
-    setInputValue(newValue);
-    }
-
-  return (
-    <div>
-      <h1>Merci {inputValue || name} pour votre inscription</h1>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => handleInputChange(e.target.value)}
-      />
-    </div>
-  );
-};
-
-export default Merci;

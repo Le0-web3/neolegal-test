@@ -1,116 +1,53 @@
 @import "../../node_modules/bootstrap/scss/bootstrap.scss";
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
 
+$primary: #0150bd;
+$secondary: #002553;
+$tertiary: white;
 
-/* Modifier les couleurs principales */
-$primary: #1BA098;
-$secondary: #051622;
-$tertiary: #DEB992;
-$black: #000000;
 
-#root {
-  margin: 0;
-  padding: 0;
+body {
+  position: fixed;
+  overflow-y: scroll;
+  width: 100%;
+}
+
+.container {
   font-family: 'Lato', sans-serif;
-}
-
-.question-font {
-  color: darken($tertiary, 30%);
-  margin-top: 4%;
-  margin-bottom: 2%;
-  font-size: 3em;
-}
-
-.field-title-font {
-  color: $tertiary;
-}
-
-.form-group label {
-  font-weight: bold;
-}
-
-.form-control {
-  border-color: $secondary;
+  color : $secondary;
 }
 
 .btn-primary {
-  background-color: $primary;
-  border-color: $primary;
-  color: $secondary;
-  margin-top: 5em;
+  background-color: $secondary;
+  border-color: $secondary;
+  color: darken($tertiary, 10%);
 }
 
 .btn-primary:hover {
-  background-color: darken($primary, 10%);
-  border-color: darken($primary, 10%);
+  background-color: $primary;
+  border-color: $primary;
 }
 
-.my-bg-inscription {
-  --bs-bg-opacity: 1;
-  background-image: linear-gradient(to bottom right, $black, $secondary);
-  padding: 5%;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden; /* Masquer la barre de défilement */
+
+.custom-option {
+  background-color: $tertiary;
 }
 
-.my-bg-merci {
-  --bs-bg-opacity: 1;
-  background-image: linear-gradient(to bottom right, lighten($primary, 60%), lighten($tertiary, 20%));
-  padding: 5%;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden; /* Masquer la barre de défilement */
+.my-name {
+  color: $primary;
+  word-break: break-word;
 }
 
-.form {
-  padding-top: 2vh;
-  padding-left: 10%;
-  padding-right: 10%;
+h1 {
+  font-size: 1em;
 }
 
-.my-message {
-  color: darken($secondary, 30%);
+.custom-label {
+  text-align: left !important;
 }
 
-.my-variable {
-  color: lighten($secondary, 10%);
-}
-
-/* Media query pour les mobiles */
-@media (max-width: 767px) {
-
-  .my-bg-inscription {
-    height: 100%;
-    width: 100%;
-    padding: 3%;
-  }
-
-  .my-bg-merci {
-    height: 100%;
-    width: 100%;
-    padding: 3%;
-  }
-
-
-  .form {
-    padding-top: 0;
-    padding-left: 5%;
-    padding-right: 5%;
-  }
-
-  .btn-primary {
-    margin-top: 0;
-  }
-
-  .question-font {
-    margin-top: 2%;
-    font-size: 1.5em;
-  }
-
-  .my-message{
-    font-size: 1.5em;
+@media (max-width: 767.98px) {
+  .my-message {
+    font-size: 2em;
   }
 }
-
