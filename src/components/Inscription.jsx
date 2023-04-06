@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import InputMask from 'react-text-mask';
+import { Form, FormGroup, FormLabel, FormControl, Button } from 'react-bootstrap';
+import './styles.scss';
 
 const Inscription = () => {
   const navigate = useNavigate();   // Router
@@ -180,6 +182,7 @@ const Inscription = () => {
     const isValidFirstName = firstNameRegex.test(formData.first_name) && formData.first_name.length <= 128;
     if (!isValidFirstName) {
       console.error('Le prénom est invalide. Veuillez entrer un prénom valide.');
+      alert('Le prénom est invalide. Veuillez entrer un prénom valide.');
       return;
 } 
 
@@ -188,6 +191,7 @@ const Inscription = () => {
     const isValidLastName = lastNameRegex.test(formData.last_name) && formData.last_name.length <= 128;
     if (!isValidLastName) {
       console.error('Le nom est invalide. Veuillez entrer un nom valide.');
+      alert('Le nom est invalide. Veuillez entrer un nom valide.');
       return;
     }
 
@@ -196,6 +200,7 @@ const Inscription = () => {
     const isValidEmail = emailRegex.test(formData.email) && formData.email.length <= 128;
     if (!isValidEmail) {
       console.error("L'email est invalide. Veuillez entrer un email valide.");
+      alert("L'email est invalide. Veuillez entrer un email valide.");
       return;
     }
 
@@ -204,6 +209,7 @@ const Inscription = () => {
     const isValidPhoneNumber = phoneNumberRegex.test(formData.phone_number);
     if (!isValidPhoneNumber) {
       console.error('Le numéro de téléphone est invalide. Veuillez entrer un numéro au format (xxx) xxx-xxxx.');
+      alert('Le numéro de téléphone est invalide. Veuillez entrer un numéro au format (xxx) xxx-xxxx.');
       return;
     }
 
@@ -212,6 +218,7 @@ const Inscription = () => {
     const isValidAddress = addresslRegex.test(formData.street_address) && formData.street_address.length <= 128;
     if (!isValidAddress) {
       console.error("L'adresse est invalide. Veuillez entrer une adresse valide.");
+      alert("L'adresse est invalide. Veuillez entrer une adresse valide.");
       return;
     }
 
@@ -220,6 +227,7 @@ const Inscription = () => {
     const isValidPostcode = postcodeRegex.test(formData.post_code)
     if (!isValidPostcode) {
       console.error("Le code postal est invalide. Veuillez entrer un code postal valide.");
+      alert("Le code postal est invalide. Veuillez entrer un code postal valide.");
       return;
     }
 
@@ -228,6 +236,7 @@ const Inscription = () => {
     const isValidCountry = countryRegex.test(formData.country)
     if (!isValidCountry) {
       console.error("Le pays est invalide. Veuillez entrer un pays valide.");
+      alert("Le pays est invalide. Veuillez entrer un pays valide.");
       return;
     }
 
@@ -251,71 +260,70 @@ const Inscription = () => {
     }
   };
     
-    
-    
+
   return (
-
-
-
-
-    <div>
-
-
-      {formJson && formJson.questions ? (
-        <form onSubmit={handleSubmit}>
-          {formJson.questions.map((question, index) => (
-            <div key={index}>
-              <h3>{question.title}</h3>
-              {question.fields.map((field, index) => (
-                <div key={index}>
-                  <label htmlFor={field.name}>{field.label}</label>
-                  {field.type === 'text' ? (
-                    masks[field.name] ? (
-                      <InputMask
-                        type="text"
-                        mask={masks[field.name]}
-                        id={field.name}
-                        name={field.name}
-                        value={formData[field.name]}
-                        onChange={(event) => handleInputChange(event)}
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        id={field.name}
-                        name={field.name}
-                        value={formData[field.name]}
-                        onChange={(event) => handleInputChange(event)}
-                      />
-                    )
-                  ) : field.type === 'dropdown' ? (
-                    <select
-                      type="dropdown"
-                      id={field.name}
-                      name={field.name}
-                      onChange={(event) => handleInputChange(event)}
-                    >
-                      {field.options.map((option, index) => (
-                        <option key={index} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : null}
+    <div className="my-bg-inscription">
+      <div className="form">
+        {formJson && formJson.questions ? (
+          <Form onSubmit={handleSubmit}>
+            {formJson.questions.map((question, index) => (
+              <div key={index} className="row">
+                <div className="col-sm-12">
+                  <h3 className="question-font">{question.title}</h3>
                 </div>
-              ))}
-            </div>
-          ))}
-          <button type="submit">Enregistrer</button>
-        </form>
-      ) : null}
-
-      <div>
-        <h2>Données du formulaire :</h2>
-        <pre>{JSON.stringify(formData, null, 2)}</pre>
+                {question.fields.map((field, index) => (
+                  <div key={index} className="col-sm-6">
+                    <FormGroup className="mb-3">
+                      <FormLabel className="field-title-font" htmlFor={field.name}>{field.label}</FormLabel>
+                      {field.type === 'text' ? (
+                        masks[field.name] ? (
+                          <FormControl
+                            type="text"
+                            as={InputMask}
+                            mask={masks[field.name]}
+                            id={field.name}
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={(event) => handleInputChange(event)}
+                            className="form-control"
+                          />
+                        ) : (
+                          <FormControl
+                            type="text"
+                            id={field.name}
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={(event) => handleInputChange(event)}
+                            className="form-control"
+                          />
+                        )
+                      ) : field.type === 'dropdown' ? (
+                        <FormControl
+                          as="select"
+                          id={field.name}
+                          name={field.name}
+                          onChange={(event) => handleInputChange(event)}
+                          className="form-select"
+                        >
+                          {field.options.map((option, index) => (
+                            <option key={index} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </FormControl>
+                      ) : null}
+                    </FormGroup>
+                  </div>
+                ))}
+              </div>
+            ))}
+            <Button type="submit" className="btn btn-primary">Enregistrer</Button>
+          </Form>
+        ) : null}
       </div>
     </div>
   );
+  
   
     
     

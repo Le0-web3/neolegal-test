@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import './styles.scss';
 
 const Merci = () => {
   const { name } = useParams();
@@ -17,16 +18,22 @@ const Merci = () => {
     setInputValue(newValue);
     }
 
-  return (
-    <div>
-      <h1>Merci {inputValue || name} pour votre inscription</h1>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => handleInputChange(e.target.value)}
-      />
-    </div>
-  );
+    return (
+      <div className="my-bg-merci vh-100 vw-100 d-flex align-items-center justify-content-center">
+    
+          <div className="col-md-8 text-center">
+          <h1 className="my-message my-4">Merci<br /><span className="my-variable">{inputValue || name}</span><br />pour votre inscription</h1>
+            <input
+              type="text"
+              className="form-control mt-3"
+              value={inputValue}
+              onChange={(e) => handleInputChange(e.target.value)}
+            />
+          </div>
+
+      </div>
+    );
+
 };
 
 export default Merci;

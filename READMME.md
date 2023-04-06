@@ -1,12 +1,32 @@
-
-    
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import InputMask from 'react-text-mask';
 
 const Inscription = () => {
   const navigate = useNavigate();   // Router
   const [formJson, setFormJson] = useState({}); // stocke le JSON retourné par la requete
-  const [formData, setFormData] = useState({});   // stocke les inputs
+  const [formData, setFormData] = useState({
+    country: "CA",
+  });   // stocke les inputs. J initialise country car j en ai besoin pour le formattage du postcode.
+
+  //   -----   INPUT MASK  -----
+  // Je voulais l'utiliser pour tout, mais il faut un nombre de caracteres définis. Pour les autres champs, je formate avec formatInput().
+  const masks = {
+    phone_number: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
+    post_code: maskForPostCode(),
+  }
+
+  function maskForPostCode() {
+    let mask = [];
+    if(formData.country === "CA") {
+      mask = [/[a-zA-Z]/, /\d/, /[a-zA-Z]/, ' ', /\d/, /[a-zA-Z]/, /\d/];
+    }
+    else {
+      mask = [/[a-zA-Z]/, /[a-zA-Z]/, ' ', /\d/, /\d/, /\d/, /\d/, /\d/];
+    }
+    return mask;
+
+  }
 
   //   -----   GET JSON   -----
   // Met a jour formJson dès l'arrivée de la requete 
@@ -90,56 +110,136 @@ const Inscription = () => {
     });
   };
 
+
+
   //   -----   INPUTS   -----
-  function formatPhoneNumber(input) {
-    // Enlever tous les caractères qui ne sont pas des chiffres
-    const phoneNumber = input.replace(/\D/g, '');
+  // Mes inputs sont controlés par le state formData. J'impose un format à la saisie et je stocke dans formData
 
-    // Vérifier si le numéro de téléphone est vide
-    if (phoneNumber === '') {
-      return '';
+  function formatInput(name, value) {
+    let formattedInput = "";
+    if(name === "first_name") {
+      // on enleve les chiffres et ne garder que les lettres (dont celles avec accents), les traits d'union et les espaces
+      const cleanedStr = value.replace(/[^A-Za-zÀ-ÿ -]/g, '');
+      // on ne laisse pas plus de 1 espace ou trait d'union d'affilée
+      const singleSpacesAndHyphensStr = cleanedStr.replace(/( |-)( |-)/g, '$1');
+      // on passe tout en minuscule
+      const lowercaseFormattedStr = singleSpacesAndHyphensStr.toLowerCase();
+      // on passe la première lettre (et chaque première lettre après un trait d'union ou un espace) en majuscule
+      formattedInput = lowercaseFormattedStr.replace(/\b\w/g, (match) => match.toUpperCase());
+    }
+    else if(name === "last_name") {
+      // on enlève les chiffres et ne garder que les lettres (dont celles avec accents), les traits d'union, les espaces et les apostrophes
+      const cleanedStr = value.replace(/[^A-Za-zÀ-ÿ '-]/g, '');
+      // on ne laisse pas plus de 1 espace ou trait d'union d'affilée
+      const singleSpacesAndHyphensStr = cleanedStr.replace(/( |-)( |-)/g, '$1');
+      // on ne laisse pas plus de 1 apostrophe d'affilée
+      const singleApostropheStr = singleSpacesAndHyphensStr.replace(/(')(')/g, '$1');
+      // on passe tout en majuscule
+      formattedInput = singleApostropheStr.toUpperCase();
+    }
+    else if(name === "email") {
+      // on enlève les accents, cédilles, caractères accentués et espaces
+      const cleanedStr = value.replace(/[À-ÿÇç\s]/g, '');
+      // on ne garde qu'un seul @ et on interdit les autres
+      const singleAtStr = cleanedStr.replace(/@/g, (match, offset) => (offset === cleanedStr.indexOf('@') ? match : ''));
+      // on passe tout en minuscule
+      formattedInput = singleAtStr.toLowerCase();
+    }
+    // je n'ai pas d'idée de format à imposer à street_address
+    else if(name === "post_code") {
+      // on passe tout en majuscule
+      formattedInput = value.toUpperCase();
     }
 
-    // Mettre en forme le numéro de téléphone en ajoutant les parenthèses et les tirets
-    let formattedPhoneNumber = `(${phoneNumber.slice(0, 3)}`;
-    if (phoneNumber.length > 3) {
-      formattedPhoneNumber += `) ${phoneNumber.slice(3, 6)}`;
-    }
-    if (phoneNumber.length > 6) {
-      formattedPhoneNumber += `-${phoneNumber.slice(6, 10)}`;
-    }
+
     
-    return formattedPhoneNumber;
+    else {
+      formattedInput = value;
+    }
+
+    return formattedInput;
   }
 
-  // Gère les changements de valeur des champs
+  // Gère les changements de valeur des champs et formate
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    if(name === "phone_number") {
+    const newValue = formatInput(name, value);
       setFormData({
         ...formData,
-        [name]: formatPhoneNumber(value)
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value
+        [name]: newValue
       });
     }
-  };
 
 
 
   //   -----   OUTPUTS   -----
   const handleSubmit = async (event) => {
     event.preventDefault();
+    // Vérification du format du prénom avant POST
+    const firstNameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:[- ][A-Za-zÀ-ÖØ-öø-ÿ]+)*$/;
+    const isValidFirstName = firstNameRegex.test(formData.first_name) && formData.first_name.length <= 128;
+    if (!isValidFirstName) {
+      console.error('Le prénom est invalide. Veuillez entrer un prénom valide.');
+      alert('Le prénom est invalide. Veuillez entrer un prénom valide.');
+      return;
+} 
+
+    // Vérification du format du nom avant POST
+    const lastNameRegex = /^[A-ZÀ-Ö]+(?:[- ][A-ZÀ-Ö]+)*$/;
+    const isValidLastName = lastNameRegex.test(formData.last_name) && formData.last_name.length <= 128;
+    if (!isValidLastName) {
+      console.error('Le nom est invalide. Veuillez entrer un nom valide.');
+      alert('Le nom est invalide. Veuillez entrer un nom valide.');
+      return;
+    }
+
+    // Vérification du format de l'email avant POST
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
+    const isValidEmail = emailRegex.test(formData.email) && formData.email.length <= 128;
+    if (!isValidEmail) {
+      console.error("L'email est invalide. Veuillez entrer un email valide.");
+      alert("L'email est invalide. Veuillez entrer un email valide.");
+      return;
+    }
+
     // Vérification du format du numéro de téléphone avant POST
-    const phoneNumberRegex = /^\(\d{3}\) \d{3}-\d{4}$/; // Regex pour le format (xxx) xxx-xxxx
+    const phoneNumberRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
     const isValidPhoneNumber = phoneNumberRegex.test(formData.phone_number);
     if (!isValidPhoneNumber) {
       console.error('Le numéro de téléphone est invalide. Veuillez entrer un numéro au format (xxx) xxx-xxxx.');
+      alert('Le numéro de téléphone est invalide. Veuillez entrer un numéro au format (xxx) xxx-xxxx.');
       return;
     }
+
+    // Vérification du format de l'adresse avant POST
+    const addresslRegex = /^[a-z0-9À-ö]+(?:[-' ][a-z0-9À-ö]+)*$/i;
+    const isValidAddress = addresslRegex.test(formData.street_address) && formData.street_address.length <= 128;
+    if (!isValidAddress) {
+      console.error("L'adresse est invalide. Veuillez entrer une adresse valide.");
+      alert("L'adresse est invalide. Veuillez entrer une adresse valide.");
+      return;
+    }
+
+    // Vérification du format du code postal avant POST
+    const postcodeRegex = /^[A-Z0-9 ]{1,8}$/;
+    const isValidPostcode = postcodeRegex.test(formData.post_code)
+    if (!isValidPostcode) {
+      console.error("Le code postal est invalide. Veuillez entrer un code postal valide.");
+      alert("Le code postal est invalide. Veuillez entrer un code postal valide.");
+      return;
+    }
+
+    // Vérification du format du pays avant POST
+    const countryRegex = /^[A-ZÀ-Ö]+(?:[- ][A-ZÀ-Ö]+)*$/;
+    const isValidCountry = countryRegex.test(formData.country)
+    if (!isValidCountry) {
+      console.error("Le pays est invalide. Veuillez entrer un pays valide.");
+      alert("Le pays est invalide. Veuillez entrer un pays valide.");
+      return;
+    }
+
+
+
       // Envoie un POST en JSON
     const response = await fetch('https://enovode7uq1r.x.pipedream.net/', {
       method: 'POST',
@@ -160,52 +260,65 @@ const Inscription = () => {
     
     
     
-    return (
-      <div>
-        {formJson && formJson.questions ? (
-          <form onSubmit={handleSubmit}>
-            {formJson.questions.map((question, index) => (
-              <div key={index}>
-                <h3>{question.title}</h3>
-                {question.fields.map((field, index) => (
-                  <div key={index}>
-                    <label htmlFor={field.name}>{field.label}</label>
-                    {field.type === 'text' ? (
-                      <input
+  return (
+
+    <div>
+      {formJson && formJson.questions ? (
+        <form onSubmit={handleSubmit}>
+          {formJson.questions.map((question, index) => (
+            <div key={index}>
+              <h3>{question.title}</h3>
+              {question.fields.map((field, index) => (
+                <div key={index}>
+                  <label htmlFor={field.name}>{field.label}</label>
+                  {field.type === 'text' ? (
+                    masks[field.name] ? (
+                      <InputMask
                         type="text"
-                        value={formData[field.name]}
+                        mask={masks[field.name]}
                         id={field.name}
                         name={field.name}
+                        value={formData[field.name]}
                         onChange={(event) => handleInputChange(event)}
                       />
-                    ) : field.type === 'dropdown' ? (
-                      <select
-                        type="dropdown"
-                        value={formData[field.name]}
+                    ) : (
+                      <input
+                        type="text"
                         id={field.name}
                         name={field.name}
+                        value={formData[field.name]}
                         onChange={(event) => handleInputChange(event)}
-                      >
-                        {field.options.map((option, index) => (
-                          <option key={index} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            ))}
-            <button type="submit">Enregistrer</button>
-          </form>
-        ) : null}
-        <div>
-  <h2>Données du formulaire :</h2>
-  <pre>{JSON.stringify(formData, null, 2)}</pre>
-</div>
+                      />
+                    )
+                  ) : field.type === 'dropdown' ? (
+                    <select
+                      type="dropdown"
+                      id={field.name}
+                      name={field.name}
+                      onChange={(event) => handleInputChange(event)}
+                    >
+                      {field.options.map((option, index) => (
+                        <option key={index} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ))}
+          <button type="submit">Enregistrer</button>
+        </form>
+      ) : null}
+
+      <div>
+        <h2>Données du formulaire :</h2>
+        <pre>{JSON.stringify(formData, null, 2)}</pre>
       </div>
-    );
+    </div>
+  );
+  
     
     
   
@@ -214,4 +327,41 @@ const Inscription = () => {
 };
 
 export default Inscription;
-        
+
+
+
+
+
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import './styles.scss';
+
+const Merci = () => {
+  const { name } = useParams();
+  const [inputValue, setInputValue] = useState("");
+
+  const handleInputChange = (value) => {
+    // on enleve les chiffres et ne garder que les lettres (dont celles avec accents), les traits d'union et les espaces
+    const cleanedStr = value.replace(/[^A-Za-zÀ-ÿ -]/g, '');
+    // on ne laisse pas plus de 1 espace ou trait d'union d'affilée
+    const singleSpacesAndHyphensStr = cleanedStr.replace(/( |-)( |-)/g, '$1');
+    // on passe tout en minuscule
+    const lowercaseFormattedStr = singleSpacesAndHyphensStr.toLowerCase();
+    // on passe la première lettre (et chaque première lettre après un trait d'union ou un espace) en majuscule
+    let newValue = lowercaseFormattedStr.replace(/\b\w/g, (match) => match.toUpperCase());
+    setInputValue(newValue);
+    }
+
+  return (
+    <div>
+      <h1>Merci {inputValue || name} pour votre inscription</h1>
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => handleInputChange(e.target.value)}
+      />
+    </div>
+  );
+};
+
+export default Merci;
